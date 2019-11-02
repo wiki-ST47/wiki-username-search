@@ -1,5 +1,5 @@
 """
-Django settings for wiki-hist-search project.
+Django settings for wiki-username-search project.
 
 For more information on this file, see
 https://docs.djangoproject.com/en/2.1/topics/settings/
@@ -24,7 +24,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'sass_processor',
     'social_django',
-    'hist_search',
+    'username_search',
 ]
 
 AUTHENTICATION_BACKENDS = (

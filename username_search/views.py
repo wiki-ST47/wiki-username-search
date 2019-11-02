@@ -32,17 +32,17 @@ def search(request):
         # Load up the site
         site_kwargs = {'code': 'en', 'fam': 'wikipedia'}
         wiki_url = form.cleaned_data.get('wiki_url')
-        base_url = f"https://{wiki_url}/wiki/"
+        base_url = "https://"+wiki_url+"/wiki/"
         if wiki_url:
             site_kwargs = {'url': base_url}
         try:
             site = pywikibot.Site(**site_kwargs)
         except pywikibot.exceptions.SiteDefinitionError:
             form.add_error('wiki_url',
-                f"Unable to find this wiki. Please check the domain and "
-                f"try again. You provided {wiki_url}, so we expected "
-                f"{base_url} to be recognized by pywikibot - but it "
-                f"wasn't."
+                "Unable to find this wiki. Please check the domain and "
+                "try again. You provided "+wiki_url+", so we expected "
+                +base_url+" to be recognized by pywikibot - but it "
+                "wasn't."
             )
             return render(request, 'index.html', context)
 

@@ -47,6 +47,7 @@ def search(request):
             return render(request, 'index.html', context)
 
         # Set up authentication
+        userinfo = None
         if request.user.is_authenticated:
             # TODO If it is possible to have more than one auth, we should try
             # all of them, or clear them out somehow.
@@ -68,6 +69,18 @@ def search(request):
                                "deleted revisions, please log in again.")
                 logout(request)
 
+        total = form.cleaned_data.get('to_search', 5000)
+        total = total if total else 5000 # PLEASE JUST SET A DEFAULT FFS
+
+        if userinfo and 'sysop' in userinfo['groups']:
+            total = min(total, 5000)
+        elif userinfo and 'extendedconfirmed' in userinfo['groups']:
+            total = min(total, 200)
+        else:
+            total = min(total, 20)
+
+
+
         # Query mariadb for the list of users
         dbname = site.dbName()
         db = MySQLdb.Connect(host=dbname+".web.db.svc.eqiad.wmflabs",
@@ -75,10 +88,11 @@ def search(request):
                              passwd=settings.MYSQL_PASS,
                              db=dbname+"_p")
         c = db.cursor()
-        c.execute("SELECT * FROM user WHERE user_name REGEXP %s",
-                  (form.cleaned_data.get('to_search'),))
-        users = [{'user_id': x[0], 'user_name': x[1], 'user_created': x[12],
-                  'edit_count': x[14]} for x in c.fetchall()]
+        c.execute("SELECT * FROM user WHERE user_name REGEXP %s ORDER BY user_registration DESC LIMIT %s",
+                  (form.cleaned_data.get('search'), total))
+        users = [{'user_id': x[0], 'user_name': x[1].decode("utf-8"),
+                  'user_created': x[12].decode("utf-8"), 'edit_count': x[14]}
+                  for x in c.fetchall()]
 
         context['users'] = users
 

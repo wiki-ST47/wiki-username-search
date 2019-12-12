@@ -1,12 +1,12 @@
 <header class="navbar navbar-expand navbar-dark flex-column flex-md-row app-navbar">
   <a class="navbar-brand mr-0 mr-md-2" href="{% url 'home' %}">
-    <b>History Search</b> | for RevDel and Oversight
+    <b>Username</b> | Regex Search
   </a>
   <div class="navbar-nav flex-row">
     {% include 'nav-item.html' with path='home' text='Homepage' %}
     {% include 'nav-item.html' with path='docs' text='Documentation' %}
     {% include 'nav-item.html' with path='tools' text='Tools' %}
-    {% include 'nav-item.html' with href_url='https://github.com/wiki-ST47/wiki-os-scan/' text='GitHub' %}
+    {% include 'nav-item.html' with href_url='https://github.com/wiki-ST47/wiki-username-search/' text='GitHub' %}
     {% include 'nav-item.html' with href_url='https://en.wikipedia.org/wiki/User talk:ST47' text='Contact' %}
     {% if request.user.is_superuser %}
       {% include 'nav-item.html' with path='admin:index' text='Admin' %}

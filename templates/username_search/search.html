@@ -1,81 +1,33 @@
 {% extends 'base.html' %}
 {% block title %}Search Results{% endblock %}
 {% block content %}
-  {% include 'hist_search/search_form.html' with form=form %}
-
-
-  {% if username %}
-    {% if matching_pages %}
-      <p>You can use the following links to search the history of each page with at least one match.</p>
-      <ul>
-        {% for key, page in matching_pages %}
-          <li>
-            <a href="{% url 'search' %}?page={{ page.title|urlencode }}&amp;{{ qparams }}">{{ page.title }}</a> ({{ page.count }} match{{ page.count|pluralize:'es' }} from {{ page.first|date:'H:i j M Y' }} to {{ page.last|date:'H:i j M Y' }})
-          </li>
-        {% endfor %}
-      </ul>
-    {% endif %}
-  {% else %}
-    <p>To use the following "quick" links, you need <a href="https://en.wikipedia.org/wiki/User:Enterprisey/url-select-revdel.js">Enterprisey's URL-Select-RevDel script</a>.</p>
-    <div class="btn-toolbar" role="toolbar">
-      <a class="btn btn-outline-primary mr-2" href="{{ rev_url }}">Select {{ rev_count }} Matching Revisions</a>
-      <a class="btn btn-outline-primary mr-2" href="{{ es_url }}">Select {{ es_count }} Matching Edit Summaries</a>
-      <a class="btn btn-outline-secondary mr-2" href"{{ log_url }}">Don't forget to check the logs!</a>
-      {% if continue %}
-        <a class="btn btn-outline-primary mr-2" href="{% url 'search' %}?{{ continue }}">Next page of history</a>
-      {% endif %}
-    </div>
-  {% endif %}
-
-  <p>Key: XX = Search term matched; RD = content already revdeled; OS = content already suppressed. Red background = match and not already OSed (not already RDed if "Include Revdeled revisions" is selected); green background = match and already OSed/RDed; white background = no match.<p>
+  {% include 'username_search/search_form.html' with form=form %}
 
   <table class="table">
     <thead>
       <tr>
-        <th scope="col" class="revision" colspan="2">Text</th>
-        <th scope="col" class="revision" colspan="2">Summ</th>
-        <th scope="col">Timestamp</th>
-        {% if username %}
-          <th scope="col">User</th>
-        {% else %}
-          <th scope="col">User</th>
-        {% endif %}
-        <th scope="col">Summary</th>
+        <th scope="col">User ID</th>
+        <th scope="col">Username</th>
+        <th class="timestamp" scope="col">Registered At</th>
+        <th scope="col">Edit Count</th>
       </tr>
     </thead>
     <tbody>
-      {% for rev in revlist %}
+      {% for user in users %}
         <tr>
-          <td class="revision {% if rev.match_rev %}revision_match {% if rev.rev_handled %}revision_handled{% endif %}{% endif %}">
-            {% if rev.match_rev %}XX{% endif %}
+          <td>
+            {{ user.user_id }}
           </td>
-          <td class="revision {% if rev.match_rev %}revision_match {% if rev.rev_handled %}revision_handled{% endif %}{% endif %}">
-            {% if rev.texthidden %}{% if rev.suppressed %}OS{% else %}RD{% endif %}{% endif %}
-          </td>
-          <td class="revision {% if rev.match_es %}revision_match {% if rev.es_handled %}revision_handled{% endif %}{% endif %}">
-            {% if rev.match_es %}XX{% endif %}
-          </td>
-          <td class="revision {% if rev.match_es %}revision_match {% if rev.es_handled %}revision_handled{% endif %}{% endif %}">
-            {% if rev.commenthidden %}{% if rev.suppressed %}OS{% else %}RD{% endif %}{% endif %}
+          <td>
+            <a href="{{ indexphp }}?title=Special:Contributions/{{ user.user_name }}">
+              {{ user.user_name }}
+            </a>
           </td>
           <td class="timestamp">
-            <a href="{{ indexphp }}?unhide=1&oldid={{ rev.rev.revid }}&diff=prev">(prev)</a> |
-            {% if username %}
-              <a href="{{ indexphp }}?action=history&title={{ rev.title|urlencode }}">(hist)</a> |
-            {% endif %}
-            <a href="{{ indexphp }}?unhide=1&oldid={{ rev.rev.revid }}">{{ rev.rev.timestamp | date:'H:i, j M Y' }}</a>
+            {{ user.user_created }}
           </td>
           <td>
-            {% if username %}
-              <a href="{{ indexphp }}?title={{ rev.title|urlencode }}">{{ rev.title }}</a>
-            {% else %}
-              <a href="{{ indexphp }}?title=User:{{ rev.rev.user }}">{{ rev.rev.user }}</a>
-              (<a href="{{ indexphp }}?title=User talk:{{ rev.rev.user }}">talk</a> |
-              <a href="{{ indexphp }}?title=Special:Contributions/{{ rev.rev.user }}">contribs</a>)
-            {% endif %}
-          </td>
-          <td>
-            {{ rev.rev.comment }}
+            {{ user.edit_count }}
           </td>
         </tr>
       {% endfor %}

@@ -88,8 +88,17 @@ def search(request):
                              passwd=settings.MYSQL_PASS,
                              db=dbname+"_p")
         c = db.cursor()
-        c.execute("SELECT * FROM user WHERE user_name REGEXP %s ORDER BY user_registration DESC LIMIT %s",
-                  (form.cleaned_data.get('search'), total))
+        field = 'user_name';
+        if form.cleaned_data.get('regex'):
+            operator = 'REGEXP';
+        else:
+            operator = 'LIKE';
+        query = form.cleaned_data.get('search')
+        if not form.cleaned_data.get('case_sensitive'):
+            field = "UPPER(CONVERT("+field+" USING utf8))"
+            query = query.upper()
+        c.execute("SELECT * FROM user WHERE "+field+" "+operator+" %s ORDER BY user_registration DESC LIMIT %s",
+                  (query, total))
         users = [{'user_id': x[0], 'user_name': x[1].decode("utf-8"),
                   'user_created': x[12].decode("utf-8"), 'edit_count': x[14]}
                   for x in c.fetchall()]
